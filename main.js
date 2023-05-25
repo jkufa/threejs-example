@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import WebGL from 'three/addons/capabilities/WebGL.js';
 
+const canvas = document.querySelector('#c');
+
 /**
  *  To actually be able to display anything with three.js, we
  * need three things: scene, camera and renderer, so that we can 
@@ -25,17 +27,23 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
  * For example, setSize(window.innerWidth/2, window.innerHeight/2, false) 
  * will render your app at half resolution, given that your <canvas> has 100% width and height.
  */
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({antialias: true, canvas}  );
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement); // add canvas to DOM
 
 // Cube
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
 // A mesh is an object that takes a geometry, and applies a material to it,
 // which we then can insert to our scene, and move freely around.
 const cube = new THREE.Mesh(geometry, material); // combine geometry and material to create a mesh
 scene.add(cube); // add cube to scene
+
+const color = 0xFFFFFF;
+const intensity = 1;
+const light = new THREE.DirectionalLight(color, intensity);
+light.position.set(-1, 2, 4);
+scene.add(light);
 
 camera.position.z = 5; // move camera back so we can see the cube
 
@@ -54,8 +62,8 @@ if ( WebGL.isWebGLAvailable() ) {
 } else {
 
 	const warning = WebGL.getWebGLErrorMessage();
-  console.log(document.getElementById( 'container' ));
-	document.getElementById( 'container' ).appendChild( warning );
+  console.log(document.getElementById('c'));
+	document.getElementById('c').appendChild( warning );
 
 }
 
@@ -64,8 +72,12 @@ function animate() {
 	requestAnimationFrame( animate );
 
   // rotate cube
-  cube.rotation.x += 0.005;
-  cube.rotation.y += 0.01;
+  cube.rotation.x -= 0.005;
+  cube.rotation.y += 0.0075;
+
+  const canvas = renderer.domElement;
+  camera.aspect = canvas.clientWidth / canvas.clientHeight;
+  camera.updateProjectionMatrix();
 
 	renderer.render( scene, camera );
 }
